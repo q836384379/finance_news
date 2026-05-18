@@ -1,0 +1,36 @@
+name: Daily Finance News to Feishu
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+jobs:
+  send-brief:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate finance briefing
+        run: python scripts/generate_finance_brief.py --out brief.json
+
+      - name: Send to Feishu
+        shell: pwsh
+        env:
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+          FEISHU_BOT_SECRET: ${{ secrets.FEISHU_BOT_SECRET }}
+        run: |
+          $brief = Get-Content -Raw -Path "brief.json" | ConvertFrom-Json
+          ./tools/send-feishu-post.ps1 `
+            -Title ([string]$brief.title) `
+            -Body ([string]$brief.body) `
+            -LinkText ([string]$brief.link_text) `
+            -LinkUrl ([string]$brief.link_url)
+

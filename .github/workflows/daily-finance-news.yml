@@ -2,7 +2,8 @@ name: Daily Finance News to Feishu
 
 on:
   schedule:
-    - cron: "0 1 * * *"
+    - cron: "37 8 * * *"
+      timezone: "Asia/Shanghai"
   workflow_dispatch:
 
 jobs:
@@ -33,4 +34,3 @@ jobs:
             -Body ([string]$brief.body) `
             -LinkText ([string]$brief.link_text) `
             -LinkUrl ([string]$brief.link_url)
-
